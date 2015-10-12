@@ -2,6 +2,7 @@ package spark
 
 import actor.ActorLookup
 import com.google.gson.Gson
+import com.typesafe.scalalogging.LazyLogging
 import config.ConfigHelper
 import dto._
 import org.apache.spark.sql.SQLContext
@@ -14,7 +15,7 @@ import twitter4j.conf.ConfigurationBuilder
 
 import scala.reflect.ClassTag
 
-object TweetsAnalyzer extends App {
+object TweetsAnalyzer extends App with LazyLogging {
   lazy val conf = new SparkConf().setMaster("local[*]").setAppName("TweetsCollector")
   lazy val sc = new SparkContext(conf)
 
@@ -127,7 +128,7 @@ object TweetsAnalyzer extends App {
         dstream foreachRDD {
           rdd =>
             val pairs = rdd.take(topCount).toList
-            println(
+            logger.debug(
               s"""
                  |$msg,
                  |${pairs.mkString(",")}

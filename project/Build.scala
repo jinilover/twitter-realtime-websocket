@@ -56,7 +56,8 @@ object TwitterRealtimeWebSocket extends Build {
     libraryDependencies ++= akka ++ spark ++ Seq(
       "com.google.code.gson" % "gson" % "2.3",
       "org.twitter4j" % "twitter4j-core" % "3.0.3",
-      "commons-cli" % "commons-cli" % "1.2"
+      "commons-cli" % "commons-cli" % "1.2",
+      "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0"
     )
   ).dependsOn(commons)
 
