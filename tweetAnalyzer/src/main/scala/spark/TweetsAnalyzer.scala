@@ -34,6 +34,7 @@ object TweetsAnalyzer extends App with LazyLogging {
 
   lazy val configVals =
     for {
+      windowInterval <- ConfigHelper.getInt("spark.windowInterval")
       intervalSecs <- ConfigHelper.getInt("spark.intervalSecs")
       noOfPartitions <- ConfigHelper.getInt("spark.noOfPartitions")
       tweetsDir <- ConfigHelper.getString("spark.tweetsDir")
@@ -43,6 +44,7 @@ object TweetsAnalyzer extends App with LazyLogging {
       accessToken <- ConfigHelper.getString("twitter.accesstoken")
       accessTokenSecret <- ConfigHelper.getString("twitter.accesstokensecret")
     } yield (
+      windowInterval,
       new StreamingContext(sc, Seconds(intervalSecs)),
       noOfPartitions,
       tweetsDir,
@@ -54,9 +56,9 @@ object TweetsAnalyzer extends App with LazyLogging {
     case selectionPath :: _ => configVals.bimap(
       print(_),
       tuple => {
-        val (ssc, noOfPartitions, tweetsDir, checkoutDir, auth) = tuple
+        val (windowInterval, ssc, noOfPartitions, tweetsDir, checkoutDir, auth) = tuple
         collectTweets(ssc, noOfPartitions, tweetsDir, auth)
-        analyzeTweets(ssc, tweetsDir, checkoutDir, selectionPath)
+        analyzeTweets(windowInterval, ssc, tweetsDir, checkoutDir, selectionPath)
         ssc.start()
         ssc.awaitTermination()
       }
@@ -78,7 +80,7 @@ object TweetsAnalyzer extends App with LazyLogging {
     })
   }
 
-  def analyzeTweets(ssc: StreamingContext, tweetsDir: String, checkpointDir: String, selectionPath: String): Unit = {
+  def analyzeTweets(windowInterval: Int, ssc: StreamingContext, tweetsDir: String, checkpointDir: String, selectionPath: String): Unit = {
     val topCount = 10
     ssc.checkpoint(checkpointDir)
 
@@ -114,7 +116,7 @@ object TweetsAnalyzer extends App with LazyLogging {
     }
 
     val sameKeyWholeWindow = statefulTransform(_: DStream[(String, Long)]) {
-      _ reduceByKeyAndWindow(_ + _, Seconds(60))
+      _ reduceByKeyAndWindow(_ + _, Seconds(windowInterval))
     }
 
     List(
