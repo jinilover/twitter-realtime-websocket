@@ -46,7 +46,6 @@ object Application extends Controller {
               val props = TwitterAnalyticsActor.props(jsClient)
               val actorRef = ActorSystem(systemName).actorOf(props, actorName)
               Logger.info(s"actor path = $actorRef")
-//              val selectedActor = system.actorSelection(selectionPath)
               props
         }
       })
