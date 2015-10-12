@@ -3,12 +3,12 @@
 @main("Twitter stream analytics") {
 <script type="text/javascript">
     $(function() {
+        createTable();
    	  var ws = new WebSocket("@routes.Application.socket.webSocketURL()");
 	  ws.onmessage = function(event) {
 	    var msg = event.data
 	    var json = JSON.parse(msg)
 	    var dataType = json.type
-	    alert("dataType is " + dataType)
 
 	    switch (dataType) {
 	      case "popularHashtagSoFar":
@@ -23,6 +23,8 @@
         alert("get error from back end, check the log")
       }
     })
-  </script>
+</script>
 <h1>Top 10 popular: <span id="most-popular"></span></h1>
+<table id="popularTable">
+</table>
 }

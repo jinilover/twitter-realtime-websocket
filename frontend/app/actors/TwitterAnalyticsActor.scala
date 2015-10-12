@@ -30,11 +30,11 @@ class TwitterAnalyticsActor(jsClient: ActorRef) extends Actor {
   def receive = {
     case hashtags: MostPopular =>
       val jsString = Json.toJson(hashtags).toString()
-      Logger.info(
+      Logger.debug(
         s"""
            |received
            |$hashtags
-           |json format
+           |sending out json format
            |$jsString
          """.stripMargin)
       jsClient ! jsString
