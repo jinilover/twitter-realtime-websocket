@@ -1,6 +1,6 @@
-function createTable() {
-    alert("createTable triggered!")
-        var table = document.getElementById("popularTable");
+function createTable(tableName) {
+//    alert("createTable triggered!")
+        var table = document.getElementById(tableName);
 
         var noOfRows = 10;
         var noOfCols = 8;
@@ -28,5 +28,16 @@ function createTable() {
         row.cells[2].innerHTML = "<b>Most popular hashtags last min.</b>";
         row.cells[4].innerHTML = "<b>Most popular languages so far</b>";
         row.cells[6].innerHTML = "<b>Most popular languages last min.</b>";
-        alert("finished createTAble")
+//        alert("finished createTAble")
+}
+
+function populateTable(tableName, pairs, keyCol, countCol) {
+    //alert("pairs = " + pairs + ", pairs.length" + pairs.length + ", keyCol = " + keyCol + ", countCol" + countCol)
+    var rows = document.getElementById(tableName).rows;
+
+    for (r = 0; r < pairs.length; r++) {
+        var cells = rows[r].cells;
+        cells[keyCol].innerHTML = pairs[r].key
+        cells[countCol].innerHTML = pairs[r].count
+    }
 }
