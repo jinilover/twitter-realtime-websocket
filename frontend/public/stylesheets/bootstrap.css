@@ -2863,8 +2863,8 @@ input[type="submit"].btn.btn-mini {
   display: block;
   padding: 8px 20px 12px;
   margin-left: -20px;
-  font-size: 20px;
   font-weight: 200;
+  font-size: 30px;
   line-height: 1;
   color: #ffffff;
 }
