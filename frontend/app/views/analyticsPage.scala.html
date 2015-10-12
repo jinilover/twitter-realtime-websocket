@@ -1,0 +1,16 @@
+@(implicit request: RequestHeader)
+
+@main("Twitter stream analytics") {
+<script type="text/javascript">
+    $(function() {
+   	  var ws = new WebSocket("@routes.Application.socket.webSocketURL()");
+	  ws.onmessage = function(msg) {
+	    $('#most-popular').text(msg.data)
+      }
+      ws.onerror = function() {
+        alert("get error from back end, check the log")
+      }
+    })
+  </script>
+<h1>Top 10 popular: <span id="most-popular"></span></h1>
+}

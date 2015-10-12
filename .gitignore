@@ -1,0 +1,14 @@
+**/target/
+.history
+
+.idea/*
+**/.idea/*
+**/.cache
+**/.classpath
+**/.project
+**/.settings/*
+**/bin
+**/logs/*
+**/.idea_modules/*
+
+#project/
