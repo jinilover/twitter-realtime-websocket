@@ -18,9 +18,16 @@
             $('#most-popular').text(value)
             populateTable(tableName, pairs, 0, 1)
             break;
+	      case "popularHashtagLastPeriod":
+            populateTable(tableName, pairs, 2, 3)
+            break;
+	      case "popularLanguageSoFar":
+            populateTable(tableName, pairs, 4, 5)
+            break;
+	      case "popularLanguageLastPeriod":
+            populateTable(tableName, pairs, 6, 7)
+            break;
 	    }
-
-	    //$('#most-popular').text(msg)
       }
       ws.onerror = function() {
         alert("get error from back end, check the log")

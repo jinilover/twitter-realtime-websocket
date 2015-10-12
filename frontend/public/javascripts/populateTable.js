@@ -40,4 +40,14 @@ function populateTable(tableName, pairs, keyCol, countCol) {
         cells[keyCol].innerHTML = pairs[r].key
         cells[countCol].innerHTML = pairs[r].count
     }
+
+    var header = table.createTHead().insertRow(0);
+    for (c = 0; c < noOfCols; c++) {
+        header.insertCell(c);
+    }
+
+    header.cells[0].innerHTML = "<b>Most popular hashtags so far</b>";
+    header.cells[2].innerHTML = "<b>Most popular hashtags last min.</b>";
+    header.cells[4].innerHTML = "<b>Most popular languages so far</b>";
+    header.cells[6].innerHTML = "<b>Most popular languages last min.</b>";
 }
