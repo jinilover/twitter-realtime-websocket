@@ -1,6 +1,8 @@
 package controllers
 
-import actors.{TwitterAnalyticsActor, ActorCommons}
+import actors.TwitterAnalyticsActor
+import akka.actor.ActorSystem
+
 //import spark._
 import config.ConfigHelper
 import play.api.mvc._
@@ -19,32 +21,13 @@ object Application extends Controller {
       Ok(views.html.analyticsPage(request))
   }
 
-  import ActorCommons._
   import scala.concurrent.ExecutionContext.Implicits.global
-  import scalaz.\/
 
   lazy val configVals =
     for {
+      systemName <- ConfigHelper.getString("actor.systemName")
       actorName <- ConfigHelper.getString("actor.name")
-      selectionPath <- ConfigHelper.getString("actor.selectionPath")
-      intervalSecs <- ConfigHelper.getInt("spark.intervalSecs")
-      noOfPartitions <- ConfigHelper.getInt("spark.noOfPartitions")
-      tweetsDir <- ConfigHelper.getString("spark.tweetsDir")
-      checkoutDir <- ConfigHelper.getString("spark.checkoutDir")
-      consumerKey <- ConfigHelper.getString("twitter.consumerkey")
-      consumerSecret <- ConfigHelper.getString("twitter.consumersecret")
-      accessToken <- ConfigHelper.getString("twitter.accesstoken")
-      accessTokenSecret <- ConfigHelper.getString("twitter.accesstokensecret")
-    } yield (actorName,
-      selectionPath,
-      intervalSecs,
-      noOfPartitions,
-      tweetsDir,
-      checkoutDir,
-      consumerKey,
-      consumerSecret,
-      accessToken,
-      accessTokenSecret)
+    } yield (systemName, actorName)
 
   def socket(): WebSocket[String, String] =
     configVals fold(
@@ -55,18 +38,12 @@ object Application extends Controller {
         }
       ),
       tuple => {
-        val (actorName, selectionPath, intervalSecs, noOfPartitions, tweetsDir, checkoutDir,
-        consumerKey, consumerSecret, accessToken, accessTokenSecret) = tuple
+        val (systemName, actorName) = tuple
         WebSocket.acceptWithActor[String, String] {
           request =>
             jsClient =>
               val props = TwitterAnalyticsActor.props(jsClient)
-              val actorRef = system.actorOf(props, actorName)
-              //          CollectTweets.collect(ssc, noOfPartitions, tweetsDir, consumerKey, consumerSecret, accessToken, accessTokenSecret)
-              //              AnalyzeTweets1.findPopulars(ssc, tweetsDir, checkoutDir, selectionPath)
-
-              //              ssc.start()
-              //              ssc.awaitTermination()
+              val actorRef = ActorSystem(systemName).actorOf(props, actorName)
               Logger.info(s"actor path = $actorRef")
 //              val selectedActor = system.actorSelection(selectionPath)
               props
