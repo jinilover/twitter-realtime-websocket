@@ -22,14 +22,14 @@ body, p {
 
 /* Set the width to result in a suitable resolution at 127mm wide. */
 div.screenshot {
-	width: 800px;
+	width: 1200px;
 	margin:20px;
 }
 .navbar-fixed-top .navbar-inner { padding-left:20px; }
 .navbar .nav > li > a { color:#bbb; }
 
 .screenshot > .container {
-	width: 760px;
+	width: 1160px;
 	padding: 20px;
 	background-color: #D0E7EF;
 }
