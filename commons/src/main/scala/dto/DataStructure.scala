@@ -1,9 +1,9 @@
 package dto
 
-case class HashtagAcrossStream(tuples: List[(String, Long)])
+case class HashtagAcrossStream(pairs: List[(String, Long)])
 
-case class HashtagAcrossWindow(tuples: List[(String, Long)])
+case class HashtagAcrossWindow(pairs: List[(String, Long)])
 
-case class LanguageAcrossStream(tuples: List[(String, Long)])
+case class LanguageAcrossStream(pairs: List[(String, Long)])
 
-case class LanguageAcrossWindow(tuples: List[(String, Long)])
+case class LanguageAcrossWindow(pairs: List[(String, Long)])

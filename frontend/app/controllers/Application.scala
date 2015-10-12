@@ -2,6 +2,7 @@ package controllers
 
 import actors.TwitterAnalyticsActor
 import akka.actor.ActorSystem
+import play.api.libs.json.JsValue
 
 //import spark._
 import config.ConfigHelper
@@ -29,9 +30,9 @@ object Application extends Controller {
       actorName <- ConfigHelper.getString("actor.name")
     } yield (systemName, actorName)
 
-  def socket(): WebSocket[String, String] =
+  def socket(): WebSocket[String, JsValue] =
     configVals fold(
-      exception => WebSocket[String, String](
+      exception => WebSocket[String, JsValue](
         request => {
           Logger.error("fail to configure web socket", exception)
           Future(Left(InternalServerError(exception.getMessage)))
@@ -39,7 +40,7 @@ object Application extends Controller {
       ),
       tuple => {
         val (systemName, actorName) = tuple
-        WebSocket.acceptWithActor[String, String] {
+        WebSocket.acceptWithActor[String, JsValue] {
           request =>
             jsClient =>
               val props = TwitterAnalyticsActor.props(jsClient)
