@@ -30,9 +30,9 @@ object Application extends Controller {
       actorName <- ConfigHelper.getString("actor.name")
     } yield (systemName, actorName)
 
-  def socket(): WebSocket[String, JsValue] =
+  def socket(): WebSocket[String, String] =
     configVals fold(
-      exception => WebSocket[String, JsValue](
+      exception => WebSocket[String, String](
         request => {
           Logger.error("fail to configure web socket", exception)
           Future(Left(InternalServerError(exception.getMessage)))
@@ -40,7 +40,7 @@ object Application extends Controller {
       ),
       tuple => {
         val (systemName, actorName) = tuple
-        WebSocket.acceptWithActor[String, JsValue] {
+        WebSocket.acceptWithActor[String, String] {
           request =>
             jsClient =>
               val props = TwitterAnalyticsActor.props(jsClient)

@@ -30,15 +30,15 @@ class TwitterAnalyticsActor(jsClient: ActorRef) extends Actor {
     //    case msg: String =>
     //      jsClient ! msg
     case hashtags:HashtagAcrossStream =>
-      val jsValue = Json.toJson(hashtags)
+      val jsString = Json.toJson(hashtags).toString()
       Logger.info(
         s"""
            |received
            |$hashtags
            |json format
-           |$jsValue
+           |$jsString
          """.stripMargin)
-      jsClient ! jsValue
+      jsClient ! jsString
   }
 }
 

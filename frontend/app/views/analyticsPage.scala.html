@@ -4,8 +4,12 @@
 <script type="text/javascript">
     $(function() {
    	  var ws = new WebSocket("@routes.Application.socket.webSocketURL()");
-	  ws.onmessage = function(msg) {
-	    $('#most-popular').text(msg.data)
+	  ws.onmessage = function(event) {
+	    var msg = event.data
+	    var json = JSON.parse(msg)
+	    var value = json.pairs[1].key + " " + json.pairs[1].count
+	    $('#most-popular').text(value)
+	    //$('#most-popular').text(msg)
       }
       ws.onerror = function() {
         alert("get error from back end, check the log")
