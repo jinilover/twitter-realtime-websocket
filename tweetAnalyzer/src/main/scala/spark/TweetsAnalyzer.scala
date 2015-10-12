@@ -3,7 +3,7 @@ package spark
 import actor.ActorLookup
 import com.google.gson.Gson
 import config.ConfigHelper
-import dto.{LanguageAcrossWindow, LanguageAcrossStream, HashtagAcrossWindow, HashtagAcrossStream}
+import dto._
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.twitter.TwitterUtils
@@ -117,11 +117,10 @@ object TweetsAnalyzer extends App {
     }
 
     List(
-      (sameKeyWholeStream(hashPairs), HashtagAcrossStream(_: List[(String, Long)]), "hashtag across stream")
-//      ,
-//      (sameKeyWholeWindow(hashPairs), HashtagAcrossWindow(_: List[(String, Long)]), "hashtag across window"),
-//      (sameKeyWholeStream(langPairs), LanguageAcrossStream(_: List[(String, Long)]), "languages across stream"),
-//      (sameKeyWholeWindow(langPairs), LanguageAcrossWindow(_: List[(String, Long)]), "languages across window")
+      (sameKeyWholeStream(hashPairs), MostPopular("popularHashtagSoFar", _: List[(String, Long)]), "hashtag across stream"),
+      (sameKeyWholeWindow(hashPairs), MostPopular("popularHashtagLastPeriod", _: List[(String, Long)]), "hashtag across window"),
+      (sameKeyWholeStream(langPairs), MostPopular("popularLanguageSoFar", _: List[(String, Long)]), "languages across stream"),
+      (sameKeyWholeWindow(langPairs), MostPopular("popularLanguageLastPeriod", _: List[(String, Long)]), "languages across window")
     ) foreach {
       tuple =>
         val (dstream, func, msg) = tuple
@@ -136,41 +135,6 @@ object TweetsAnalyzer extends App {
             ActorLookup.lookup(selectionPath) ! func(pairs)
         }
     }
-
-//    sameKeyWholeStream(hashPairs) foreachRDD {
-//      rdd =>
-//        val tuples = rdd.take(topCount).toList
-//        println(
-//          s"""
-//             |hashtag across stream,
-//             |${tuples.mkString(",")}
-//           """.stripMargin)
-//        ActorLookup.lookup(selectionPath) ! HashtagAcrossStream(tuples)
-//    }
-//
-//    sameKeyWholeWindow(hashPairs) foreachRDD {
-//      rdd => println(
-//        s"""
-//           |hashtag across window,
-//           |${rdd.take(topCount).toList.mkString(",")}
-//           """.stripMargin)
-//    }
-//
-//    sameKeyWholeStream(langPairs) foreachRDD {
-//      rdd => println(
-//        s"""
-//           |lang across stream,
-//           |${rdd.take(topCount).toList.mkString(",")}
-//           """.stripMargin)
-//    }
-//
-//    sameKeyWholeWindow(langPairs) foreachRDD {
-//      rdd => println(
-//        s"""
-//           |lang across window,
-//           |${rdd.take(topCount).toList.mkString(",")}
-//           """.stripMargin)
-//    }
   }
 
   def createPairs[T, R: ClassTag](stream: DStream[T])(f: T => List[R]): DStream[(R, Long)] =

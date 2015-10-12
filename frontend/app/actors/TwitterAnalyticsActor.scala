@@ -1,9 +1,9 @@
 package actors
 
-import akka.actor.{ Props, Actor, ActorRef }
-import dto.HashtagAcrossStream
+import akka.actor.{Props, Actor, ActorRef}
+import dto.MostPopular
 import play.api.Logger
-import play.api.libs.json.{JsValue, Json, Writes}
+import play.api.libs.json.{JsString, JsValue, Json, Writes}
 
 object TwitterAnalyticsActor {
   implicit val pairWritesWrites = new Writes[(String, Long)] {
@@ -13,10 +13,10 @@ object TwitterAnalyticsActor {
     )
   }
 
-  implicit val hashtagAcrossStreamWrites = new Writes[HashtagAcrossStream] {
-    def writes(h: HashtagAcrossStream) = Json.obj(
-      "pairs" ->
-        h.pairs.map(pair => Json.toJson(pair))
+  implicit val hashtagAcrossStreamWrites = new Writes[MostPopular] {
+    def writes(h: MostPopular) = Json.obj(
+      "type" -> JsString(h.dataType),
+      "pairs" -> h.pairs.map(pair => Json.toJson(pair))
     )
   }
 
@@ -24,12 +24,11 @@ object TwitterAnalyticsActor {
 }
 
 class TwitterAnalyticsActor(jsClient: ActorRef) extends Actor {
+
   import TwitterAnalyticsActor._
 
   def receive = {
-    //    case msg: String =>
-    //      jsClient ! msg
-    case hashtags:HashtagAcrossStream =>
+    case hashtags: MostPopular =>
       val jsString = Json.toJson(hashtags).toString()
       Logger.info(
         s"""

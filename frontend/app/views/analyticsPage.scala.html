@@ -7,8 +7,16 @@
 	  ws.onmessage = function(event) {
 	    var msg = event.data
 	    var json = JSON.parse(msg)
-	    var value = json.pairs[1].key + " " + json.pairs[1].count
-	    $('#most-popular').text(value)
+	    var dataType = json.type
+	    alert("dataType is " + dataType)
+
+	    switch (dataType) {
+	      case "popularHashtagSoFar":
+            var value = json.pairs[0].key + " " + json.pairs[0].count
+            $('#most-popular').text(value)
+            break;
+	    }
+
 	    //$('#most-popular').text(msg)
       }
       ws.onerror = function() {
