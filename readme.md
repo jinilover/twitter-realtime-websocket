@@ -1,4 +1,4 @@
-#A prototype does simple analysis on Twitter stream data
+#Simple analysis on Twitter stream data
 This application does a simple real-time analysis on Twitter stream data.  It identifies the most popular hashtags or languages being used among the tweets (exclude the retweeted) since it started receiving the data or since the last minute, provides the real-time update on the browser.
 It uses Spark streaming, Spark SQL, Akka, Play, WebSocket.  Most of the application is written in Scala except presenting the report is written in JavaScript.
 
