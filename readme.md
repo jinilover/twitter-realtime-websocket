@@ -37,7 +37,7 @@ The web application sends Json-formated data to the browser via web socket.  I h
 
 Here is the captured screen
 
-[![alt text](/TwitterAnalytics.png)]
+![alt text](/TwitterAnalytics.png)
 
 ##Side-effects
 some side-effects still need, such as .cache(), the way to create a spark conf, 
