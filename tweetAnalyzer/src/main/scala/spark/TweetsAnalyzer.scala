@@ -66,6 +66,9 @@ object TweetsAnalyzer extends App with LazyLogging {
     case _ => println("missing actor selection path")
   }
 
+  /**
+   * Collect tweets from the real-time twitter stream, convert them to json format and stored to file
+   */
   def collectTweets(ssc: StreamingContext, noOfPartitions: Int, tweetsDir: String, auth: Option[Authorization]): Unit = {
     val tweetStream = TwitterUtils.createStream(ssc, auth)
       .filter(!_.isRetweet)
@@ -80,6 +83,11 @@ object TweetsAnalyzer extends App with LazyLogging {
     })
   }
 
+  /**
+   * Loads the data from the stored json file by collectTweets, find the popular hashtags/languages
+   * among the tweets using spark stream api, sends the analyzed result to an Akka actor run by
+   * another jvm
+   */
   def analyzeTweets(windowInterval: Int, ssc: StreamingContext, tweetsDir: String, checkpointDir: String, selectionPath: String): Unit = {
     val topCount = 10
     ssc.checkpoint(checkpointDir)
@@ -120,13 +128,13 @@ object TweetsAnalyzer extends App with LazyLogging {
     }
 
     List(
-      (sameKeyWholeStream(hashPairs), MostPopular("popularHashtagSoFar", _: List[(String, Long)]), "hashtag across stream"),
-      (sameKeyWholeWindow(hashPairs), MostPopular("popularHashtagLastPeriod", _: List[(String, Long)]), "hashtag across window"),
-      (sameKeyWholeStream(langPairs), MostPopular("popularLanguageSoFar", _: List[(String, Long)]), "languages across stream"),
-      (sameKeyWholeWindow(langPairs), MostPopular("popularLanguageLastPeriod", _: List[(String, Long)]), "languages across window")
+      (sameKeyWholeStream(hashPairs), "popularHashtagSoFar"),
+      (sameKeyWholeWindow(hashPairs), "popularHashtagLastPeriod"),
+      (sameKeyWholeStream(langPairs), "popularLanguageSoFar"),
+      (sameKeyWholeWindow(langPairs), "popularLanguageLastPeriod")
     ) foreach {
       tuple =>
-        val (dstream, func, msg) = tuple
+        val (dstream, msg) = tuple
         dstream foreachRDD {
           rdd =>
             val pairs = rdd.take(topCount).toList
@@ -135,11 +143,14 @@ object TweetsAnalyzer extends App with LazyLogging {
                  |$msg,
                  |${pairs.mkString(",")}
              """.stripMargin)
-            ActorLookup.lookup(selectionPath) ! func(pairs)
+            ActorLookup.lookup(selectionPath) ! MostPopular(msg, pairs)
         }
     }
   }
 
+  /**
+   * functional template for code sharing via currying
+   */
   def createPairs[T, R: ClassTag](stream: DStream[T])(f: T => List[R]): DStream[(R, Long)] =
     stream
       .flatMap(f)
@@ -147,6 +158,9 @@ object TweetsAnalyzer extends App with LazyLogging {
       .reduceByKey(_ + _)
       .cache()
 
+  /**
+   * functional template for code sharing via currying
+   */
   def statefulTransform[R](stream: DStream[(R, Long)])(f: DStream[(R, Long)] => DStream[(R, Long)]): DStream[(R, Long)] =
     f(stream) transform (_ sortBy(_._2, ascending = false))
 }
